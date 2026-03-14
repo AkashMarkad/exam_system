@@ -16,6 +16,6 @@ password - password
 admin
 
 1. 
-admin
+admin name
 admin@exam.com
-admin@123
+admin123
