@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { registerUser, saveUser } from '../services/api';
-import './Auth.css';
+import { registerUser } from '../services/api';
+import logo from '../assets/images/logo.png';
+import '../styles/Auth.css';
 
 function Register() {
     const navigate = useNavigate();
@@ -43,9 +44,8 @@ function Register() {
         setFieldErrors({});
 
         try {
-            const data = await registerUser(form.name.trim(), form.email.trim(), form.password);
-            saveUser({ name: data.name, email: data.email, role: data.role });
-            navigate('/home');
+            await registerUser(form.name.trim(), form.email.trim(), form.password);
+            navigate('/login', { state: { successMessage: 'Registration successful! Please sign in.' } });
         } catch (err) {
             if (err.data?.errors) {
                 setFieldErrors(err.data.errors);
@@ -62,7 +62,9 @@ function Register() {
             <div className="auth-container">
                 <div className="auth-card">
                     <div className="auth-brand">
-                        <div className="auth-brand-icon">📝</div>
+                        <div className="auth-brand-icon">
+                            <img src={logo} alt="Exam System Logo" className="auth-logo-img" />
+                        </div>
                         <h1>Create Account</h1>
                         <p>Join Exam System and start learning</p>
                     </div>

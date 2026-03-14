@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getUser } from '../services/api';
 import Navbar from '../components/Navbar';
-import './Home.css';
+import '../styles/Home.css';
 
 function Home() {
     const navigate = useNavigate();
@@ -12,7 +12,7 @@ function Home() {
         if (!user) {
             navigate('/login');
         }
-    }, [user, navigate]);
+    }, [user?.email, navigate]);
 
     if (!user) return null;
 

@@ -2,17 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getProfile, updateProfile, deleteProfile, getUser, saveUser, clearUser } from '../services/api';
 import Navbar from '../components/Navbar';
-import './Auth.css'; // Reuse auth styles for the form
+import logo from '../assets/images/logo.png';
+import '../styles/Auth.css'; // Reuse auth styles for the form
 
 function Profile() {
     const navigate = useNavigate();
     const currentUser = getUser();
     
-    const [form, setForm] = useState({ name: '', newPassword: '' });
+    const [form, setForm] = useState({ name: '', email: '', newPassword: '' });
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [message, setMessage] = useState({ text: '', type: '' });
+    const [showPassword, setShowPassword] = useState(false);
     const [fieldErrors, setFieldErrors] = useState({});
 
     useEffect(() => {
@@ -24,18 +26,24 @@ function Profile() {
         const fetchProfile = async () => {
             try {
                 const data = await getProfile();
-                setForm({ name: data.name, newPassword: '' });
+                setForm({ 
+                    name: data.name || '', 
+                    email: data.email || '', 
+                    newPassword: '' 
+                });
             } catch (err) {
-                setMessage({ text: 'Failed to load profile. Please sign in again.', type: 'error' });
-                clearUser();
-                setTimeout(() => navigate('/login'), 2000);
+                if (err.message && !err.message.includes('JSON')) {
+                    setMessage({ text: 'Failed to load profile. Please sign in again.', type: 'error' });
+                    clearUser();
+                    setTimeout(() => navigate('/login'), 2000);
+                }
             } finally {
                 setLoading(false);
             }
         };
 
         fetchProfile();
-    }, [navigate, currentUser]);
+    }, [navigate, currentUser?.email]);
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -75,8 +83,13 @@ function Profile() {
             });
             
             // Update local storage user data
-            saveUser({ name: data.name, email: data.email, role: data.role });
+            saveUser({ 
+                name: data.name, 
+                email: data.email, 
+                role: data.role
+            });
             setForm({ ...form, newPassword: '' }); // Clear password field
+            setShowPassword(false);
             setMessage({ text: 'Profile updated successfully!', type: 'success' });
         } catch (err) {
             if (err.data?.errors) {
@@ -119,21 +132,15 @@ function Profile() {
             <div className="auth-container" style={{ margin: '3rem auto' }}>
                 <div className="auth-card">
                     <div className="auth-brand">
-                        <div className="auth-brand-icon">👤</div>
+                        <div className="auth-brand-icon">
+                            <img src={logo} alt="Profile Icon" className="auth-logo-img" />
+                        </div>
                         <h1>Manage Profile</h1>
                         <p>Update your personal information</p>
                     </div>
 
                     {message.text && (
-                        <div className={message.type === 'error' ? 'general-error' : 'general-success'} style={{
-                            background: message.type === 'success' ? 'rgba(34, 197, 94, 0.1)' : undefined,
-                            borderColor: message.type === 'success' ? 'rgba(34, 197, 94, 0.2)' : undefined,
-                            color: message.type === 'success' ? 'var(--success)' : undefined,
-                            padding: '0.75rem 1rem',
-                            borderRadius: 'var(--radius)',
-                            marginBottom: '1.25rem',
-                            textAlign: 'center'
-                        }}>
+                        <div className={message.type === 'error' ? 'general-error' : 'general-success'}>
                             {message.text}
                         </div>
                     )}
@@ -154,16 +161,37 @@ function Profile() {
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="newPassword">New Password (Leave blank to keep current)</label>
+                            <label htmlFor="email">Email Address</label>
                             <input
-                                id="newPassword"
-                                type="password"
-                                name="newPassword"
-                                placeholder="Enter new password"
-                                value={form.newPassword}
-                                onChange={handleChange}
-                                className={fieldErrors.newPassword ? 'input-error' : ''}
+                                id="email"
+                                type="email"
+                                name="email"
+                                value={form.email}
+                                disabled
+                                style={{ backgroundColor: 'var(--bg-secondary)', cursor: 'not-allowed', border: '1px dashed var(--border-color)' }}
                             />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="newPassword">New Password (Leave blank to keep current)</label>
+                            <div className="password-wrapper">
+                                <input
+                                    id="newPassword"
+                                    type={showPassword ? 'text' : 'password'}
+                                    name="newPassword"
+                                    placeholder="Enter new password"
+                                    value={form.newPassword}
+                                    onChange={handleChange}
+                                    className={fieldErrors.newPassword ? 'input-error' : ''}
+                                />
+                                <button
+                                    type="button"
+                                    className="password-toggle"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                >
+                                    {showPassword ? '🙈' : '👁'}
+                                </button>
+                            </div>
                             {fieldErrors.newPassword && <div className="field-error">⚠ {fieldErrors.newPassword}</div>}
                         </div>
 
@@ -173,7 +201,7 @@ function Profile() {
                         </button>
                     </form>
 
-                    <div style={{ marginTop: '2.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)', textAlign: 'center' }}>
+                    <div className="danger-zone" style={{ marginTop: '2.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)', textAlign: 'center' }}>
                         <h3 style={{ fontSize: '1rem', color: 'var(--error)', marginBottom: '0.5rem' }}>Danger Zone</h3>
                         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
                             Once you delete your account, there is no going back. Please be certain.
@@ -181,23 +209,7 @@ function Profile() {
                         <button 
                             onClick={handleDelete}
                             disabled={saving || deleting} 
-                            style={{
-                                background: 'transparent',
-                                border: '1px solid var(--error)',
-                                color: 'var(--error)',
-                                padding: '0.6rem 1.2rem',
-                                borderRadius: 'var(--radius)',
-                                cursor: 'pointer',
-                                fontWeight: '600',
-                                fontSize: '0.85rem',
-                                transition: 'all 0.2s',
-                            }}
-                            onMouseOver={(e) => {
-                                e.target.style.background = 'rgba(239, 68, 68, 0.1)';
-                            }}
-                            onMouseOut={(e) => {
-                                e.target.style.background = 'transparent';
-                            }}
+                            className="btn-danger-outline"
                         >
                             {deleting ? 'Deleting...' : 'Delete Account'}
                         </button>

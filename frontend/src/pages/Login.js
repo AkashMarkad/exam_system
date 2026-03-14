@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { loginUser, saveUser } from '../services/api';
-import './Auth.css';
+import logo from '../assets/images/logo.png';
+import '../styles/Auth.css';
 
 function Login() {
     const navigate = useNavigate();
+    const location = useLocation();
     const [form, setForm] = useState({ email: '', password: '' });
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -59,10 +61,16 @@ function Login() {
             <div className="auth-container">
                 <div className="auth-card">
                     <div className="auth-brand">
-                        <div className="auth-brand-icon">🔐</div>
+                        <div className="auth-brand-icon">
+                            <img src={logo} alt="Exam System Logo" className="auth-logo-img" />
+                        </div>
                         <h1>Welcome Back</h1>
                         <p>Sign in to your Exam System account</p>
                     </div>
+
+                    {location.state?.successMessage && (
+                        <div className="general-success">{location.state.successMessage}</div>
+                    )}
 
                     {error && <div className="general-error">{error}</div>}
 

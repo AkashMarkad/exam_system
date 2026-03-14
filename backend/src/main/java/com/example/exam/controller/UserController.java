@@ -51,9 +51,6 @@ public class UserController {
 
         try {
             User user = userService.register(request);
-            String token = jwtUtil.generateToken(user.getEmail());
-
-            addJwtCookie(response, token);
 
             AuthResponse authResponse = new AuthResponse(
                     "Registration successful",
@@ -133,6 +130,7 @@ public class UserController {
         }
         String email = jwtUtil.extractEmail(token);
         User updatedUser = userService.updateUser(email, request);
+        
         updatedUser.setPassword(null);
         return ResponseEntity.ok(updatedUser);
     }

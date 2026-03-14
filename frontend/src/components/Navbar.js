@@ -1,15 +1,38 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { getUser, clearUser } from '../services/api';
-import './Navbar.css';
+import logo from '../assets/images/logo.png';
+import '../styles/Navbar.css';
 
 function Navbar() {
     const navigate = useNavigate();
     const user = getUser();
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+    const dropdownRef = useRef(null);
+
+    useEffect(() => {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+    }, [theme]);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setDropdownOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     const handleLogout = () => {
         clearUser();
         navigate('/login');
+    };
+
+    const toggleTheme = () => {
+        setTheme(prev => prev === 'dark' ? 'light' : 'dark');
     };
 
     const getInitials = (name) => {
@@ -23,14 +46,15 @@ function Navbar() {
 
     return (
         <nav className="navbar">
-            <div className="navbar-brand">
-                <div className="navbar-brand-icon">📝</div>
+            <Link to="/home" className="navbar-brand" style={{ textDecoration: 'none' }}>
+                <img src={logo} alt="Exam System Logo" className="navbar-logo-img" />
                 <span>Exam System</span>
-            </div>
+            </Link>
+
             <div className="navbar-right">
                 {user && (
-                    <>
-                        <div className="navbar-user">
+                    <div className="navbar-user-container" ref={dropdownRef}>
+                        <div className={`navbar-user-trigger ${dropdownOpen ? 'active' : ''}`} onClick={() => setDropdownOpen(!dropdownOpen)}>
                             <div className="navbar-avatar">
                                 {getInitials(user.name)}
                             </div>
@@ -38,15 +62,28 @@ function Navbar() {
                                 <span className="navbar-user-name">{user.name}</span>
                                 <span className="navbar-user-email">{user.email}</span>
                             </div>
+                            <div className="dropdown-arrow">▾</div>
                         </div>
-                        <Link to="/profile" className="navbar-logout" style={{ textDecoration: 'none' }}>
-                            Profile
-                        </Link>
-                        <button className="navbar-logout" onClick={handleLogout}>
-                            Logout
-                        </button>
-                    </>
+
+                        {dropdownOpen && (
+                            <div className="navbar-dropdown">
+                                <Link to="/profile" className="dropdown-item" onClick={() => setDropdownOpen(false)}>
+                                    <span className="item-icon">👤</span>
+                                    <span>Profile</span>
+                                </Link>
+                                <div className="dropdown-divider"></div>
+                                <button className="dropdown-item logout" onClick={handleLogout}>
+                                    <span className="item-icon">🚪</span>
+                                    <span>Logout</span>
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 )}
+
+                <button className="theme-toggle" onClick={toggleTheme} title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
+                    {theme === 'dark' ? '☀️' : '🌙'}
+                </button>
             </div>
         </nav>
     );
