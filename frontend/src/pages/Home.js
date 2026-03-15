@@ -7,12 +7,13 @@ import '../styles/Home.css';
 function Home() {
     const navigate = useNavigate();
     const user = getUser();
+    const userEmail = user?.email;
 
     useEffect(() => {
-        if (!user) {
+        if (!userEmail) {
             navigate('/login');
         }
-    }, [user?.email, navigate]);
+    }, [userEmail, navigate]);
 
     if (!user) return null;
 

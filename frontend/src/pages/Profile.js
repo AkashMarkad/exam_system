@@ -17,8 +17,10 @@ function Profile() {
     const [showPassword, setShowPassword] = useState(false);
     const [fieldErrors, setFieldErrors] = useState({});
 
+    const userEmail = currentUser?.email;
+    
     useEffect(() => {
-        if (!currentUser) {
+        if (!userEmail) {
             navigate('/login');
             return;
         }
@@ -43,7 +45,7 @@ function Profile() {
         };
 
         fetchProfile();
-    }, [navigate, currentUser?.email]);
+    }, [navigate, userEmail]);
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
