@@ -11,6 +11,11 @@ name - test
 email - test@example.com
 password - password
 
+2. 
+name - Akash Markad
+email - akash@example.com
+password - password
+
 ------------------------
 
 admin
