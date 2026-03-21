@@ -12,7 +12,7 @@ const dev = {
 
 const prod = {
     // Production API Base URL
-    API_BASE_URL: process.env.REACT_APP_API_BASE_URL || 'https://examsystem-production.up.railway.app:8080/api',
+    API_BASE_URL: process.env.REACT_APP_API_BASE_URL || 'https://examsystem-production.up.railway.app/api',
 
     // Other frontend configurations can go here
     APP_NAME: 'Exam System',
