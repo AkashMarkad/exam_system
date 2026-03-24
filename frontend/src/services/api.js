@@ -91,6 +91,54 @@ export async function deleteProfile() {
     return data;
 }
 
+export async function forgotPassword(email) {
+    const response = await fetch(`${API_BASE}/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || 'Failed to send OTP');
+    }
+
+    return data;
+}
+
+export async function verifyOtp(email, otp) {
+    const response = await fetch(`${API_BASE}/auth/verify-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, otp }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || 'OTP verification failed');
+    }
+
+    return data;
+}
+
+export async function resetPassword(email, otp, newPassword) {
+    const response = await fetch(`${API_BASE}/auth/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, otp, newPassword }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || 'Password reset failed');
+    }
+
+    return data;
+}
+
 export function saveUser(user) {
     localStorage.setItem('user', JSON.stringify(user));
 }

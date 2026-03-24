@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -109,12 +109,17 @@ public class UserController {
         response.addCookie(cookie);
     }
 
+    /**
+     * Gets the email of the currently authenticated user from the SecurityContext.
+     * Spring Security's JwtAuthFilter has already validated the token and set the authentication.
+     */
+    private String getAuthenticatedEmail() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
+    }
+
     @GetMapping("/profile")
-    public ResponseEntity<User> getProfile(@CookieValue(value = "jwt", defaultValue = "") String token) {
-        if (token.isEmpty() || !jwtUtil.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        String email = jwtUtil.extractEmail(token);
+    public ResponseEntity<User> getProfile() {
+        String email = getAuthenticatedEmail();
         User user = userService.getUserByEmail(email);
         user.setPassword(null); // Don't send password back
         return ResponseEntity.ok(user);
@@ -122,31 +127,23 @@ public class UserController {
 
     @PutMapping("/profile")
     public ResponseEntity<User> updateProfile(
-            @Valid @RequestBody UpdateProfileRequest request,
-            @CookieValue(value = "jwt", defaultValue = "") String token) {
-        
-        if (token.isEmpty() || !jwtUtil.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        String email = jwtUtil.extractEmail(token);
+            @Valid @RequestBody UpdateProfileRequest request) {
+
+        String email = getAuthenticatedEmail();
         User updatedUser = userService.updateUser(email, request);
-        
+
         updatedUser.setPassword(null);
         return ResponseEntity.ok(updatedUser);
     }
 
     @DeleteMapping("/profile")
     public ResponseEntity<Map<String, String>> deleteProfile(
-            @CookieValue(value = "jwt", defaultValue = "") String token,
             HttpServletResponse response) {
-        
-        if (token.isEmpty() || !jwtUtil.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        String email = jwtUtil.extractEmail(token);
+
+        String email = getAuthenticatedEmail();
         userService.deleteUser(email);
         clearJwtCookie(response);
-        
+
         Map<String, String> res = new HashMap<>();
         res.put("message", "Profile deleted successfully");
         return ResponseEntity.ok(res);
