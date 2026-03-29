@@ -1,0 +1,23 @@
+import React, { useEffect } from 'react';
+import '../styles/Toast.css';
+
+function Toast({ message, type = 'success', onClose, duration = 4000 }) {
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            onClose();
+        }, duration);
+        return () => clearTimeout(timer);
+    }, [onClose, duration]);
+
+    const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+
+    return (
+        <div className={`toast toast-${type}`}>
+            <span className="toast-icon">{icon}</span>
+            <span className="toast-message">{message}</span>
+            <button className="toast-close" onClick={onClose}>✕</button>
+        </div>
+    );
+}
+
+export default Toast;

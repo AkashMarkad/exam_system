@@ -24,6 +24,7 @@ function Home() {
             title: 'Take Exam',
             description: 'Browse available exams and test your knowledge with timed assessments.',
             tag: 'Available',
+            link: '/exams'
         },
         {
             icon: '📊',
@@ -56,6 +57,7 @@ function Home() {
                 description: 'Create, edit, and manage exam questions and settings.',
                 tag: 'Admin',
                 tagClass: '',
+                link: '/admin/manage-exams'
             },
             {
                 icon: '👥',
@@ -106,7 +108,12 @@ function Home() {
                 <h2 className="features-heading">Quick Actions</h2>
                 <div className="features-grid">
                     {features.map((feature, index) => (
-                        <div className="feature-card" key={index}>
+                        <div 
+                            className="feature-card" 
+                            key={index}
+                            onClick={() => feature.link && navigate(feature.link)}
+                            style={{ cursor: feature.link ? 'pointer' : 'default' }}
+                        >
                             <div className="feature-card-icon">{feature.icon}</div>
                             <h3>{feature.title}</h3>
                             <p>{feature.description}</p>

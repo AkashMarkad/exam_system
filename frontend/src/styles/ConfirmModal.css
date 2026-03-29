@@ -1,0 +1,107 @@
+/* ===== OVERLAY ===== */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: modal-fade-in 0.2s ease;
+}
+
+@keyframes modal-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ===== CARD ===== */
+.modal-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 36px 32px 28px;
+    width: 420px;
+    max-width: 90vw;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    animation: modal-slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modal-slide-up {
+    from {
+        transform: translateY(20px) scale(0.97);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+/* ===== CONTENT ===== */
+.modal-icon {
+    font-size: 2.8rem;
+    margin-bottom: 16px;
+}
+
+.modal-title {
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.modal-message {
+    color: var(--text-secondary);
+    font-size: 0.92rem;
+    line-height: 1.6;
+    margin-bottom: 28px;
+}
+
+/* ===== BUTTONS ===== */
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.modal-btn {
+    flex: 1;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.modal-cancel {
+    background: var(--input-bg);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+}
+
+.modal-cancel:hover {
+    background: var(--bg-card-hover);
+    color: var(--text-primary);
+}
+
+.modal-confirm {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+.modal-confirm:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+}
+
+.modal-confirm:active {
+    transform: translateY(0);
+}

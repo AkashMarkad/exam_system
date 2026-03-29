@@ -139,6 +139,71 @@ export async function resetPassword(email, otp, newPassword) {
     return data;
 }
 
+export async function createExamWithQuestions(examData, file, uploadType) {
+    const formData = new FormData();
+    formData.append('exam', JSON.stringify(examData));
+    formData.append('file', file);
+
+    const response = await fetch(`${API_BASE}/exams/create-with-questions?uploadType=${uploadType}`, {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Failed to create exam and upload questions');
+    }
+    return response.text();
+}
+
+export async function getExams() {
+    const response = await fetch(`${API_BASE}/exams`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch exams');
+    }
+
+    return data;
+}
+
+export async function updateExam(id, examData) {
+    const response = await fetch(`${API_BASE}/exams/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(examData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || 'Failed to update exam');
+    }
+
+    return data;
+}
+
+export async function deleteExam(id) {
+    const response = await fetch(`${API_BASE}/exams/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Failed to delete exam');
+    }
+
+    return response.text();
+}
+
 export function saveUser(user) {
     localStorage.setItem('user', JSON.stringify(user));
 }
