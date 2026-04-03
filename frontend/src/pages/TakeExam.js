@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { getExams } from '../services/api';
+import { useNavigate } from 'react-router-dom';
+import { getExams, getMyResults } from '../services/api';
 import Navbar from '../components/Navbar';
 import '../styles/TakeExam.css';
 
 function TakeExam() {
+    const navigate = useNavigate();
     const [exams, setExams] = useState([]);
+    const [userAttempts, setUserAttempts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
         fetchExams();
@@ -14,8 +18,12 @@ function TakeExam() {
 
     const fetchExams = async () => {
         try {
-            const data = await getExams();
-            setExams(data);
+            const [examsData, attemptsData] = await Promise.all([
+                getExams(),
+                getMyResults()
+            ]);
+            setExams(examsData);
+            setUserAttempts(attemptsData);
         } catch (err) {
             setError(err.message || 'Failed to load exams.');
         } finally {
@@ -47,9 +55,12 @@ function TakeExam() {
 
     const handleTakeExam = (examId, isLive) => {
         if (!isLive) return;
-        // Navigation to actual exam execution page would go here.
-        alert(`Starting Exam ID: ${examId}`);
+        navigate(`/exam/${examId}/take`);
     };
+
+    const filteredExams = exams.filter((exam) =>
+        exam.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     return (
         <div className="take-exam-page">
@@ -60,19 +71,33 @@ function TakeExam() {
                     <p>Select a live exam to start your assessment.</p>
                 </div>
 
+                <div className="take-exam-search-wrapper">
+                    <span className="take-exam-search-icon">🔍</span>
+                    <input
+                        type="text"
+                        className="take-exam-search-input"
+                        placeholder="Search available exams..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                    {searchQuery && (
+                        <button className="take-exam-search-clear" onClick={() => setSearchQuery('')}>✕</button>
+                    )}
+                </div>
+
                 {loading ? (
                     <div className="loading-spinner">Loading exams...</div>
                 ) : error ? (
                     <div className="error-msg">{error}</div>
-                ) : exams.length === 0 ? (
+                ) : filteredExams.length === 0 ? (
                     <div className="no-exams-card">
                         <span className="no-exams-icon">📚</span>
                         <h3>No Exams Found</h3>
-                        <p>There are currently no exams scheduled for you.</p>
+                        <p>{exams.length === 0 ? 'There are currently no exams scheduled for you.' : 'No exams match your search.'}</p>
                     </div>
                 ) : (
                     <div className="exams-grid">
-                        {exams.map((exam) => {
+                        {filteredExams.map((exam) => {
                             const status = getExamStatus(exam.startTime, exam.endTime);
                             return (
                                 <div className={`exam-card ${status.isLive ? 'live-card' : ''}`} key={exam.id}>
@@ -86,12 +111,12 @@ function TakeExam() {
                                         {exam.description || 'Test your knowledge on this subject.'}
                                     </p>
                                     
-                                    <div className="exam-meta">
-                                        <div className="meta-item">
+                                    <div className="exam-meta-row">
+                                        <div className="meta-pill">
                                             <span className="meta-icon">⏱️</span>
                                             <span className="meta-text">{exam.durationMinutes} mins</span>
                                         </div>
-                                        <div className="meta-item">
+                                        <div className="meta-pill">
                                             <span className="meta-icon">🎯</span>
                                             <span className="meta-text">{exam.totalMarks} marks</span>
                                         </div>
@@ -108,13 +133,29 @@ function TakeExam() {
                                         </div>
                                     </div>
 
-                                    <button 
-                                        className={`take-btn ${!status.isLive ? 'btn-disabled' : ''}`}
-                                        onClick={() => handleTakeExam(exam.id, status.isLive)}
-                                        disabled={!status.isLive}
-                                    >
-                                        {status.isLive ? 'Start Exam' : (status.label === 'Upcoming' ? 'Not Yet Open' : 'Not Available')}
-                                    </button>
+                                    {(() => {
+                                        const hasAttempted = userAttempts.some(a => a.examId === exam.id);
+                                        const isDisabled = !status.isLive || hasAttempted;
+                                        let btnText = 'Start Exam';
+                                        
+                                        if (hasAttempted) {
+                                            btnText = 'Already Attempted';
+                                        } else if (status.label === 'Upcoming') {
+                                            btnText = 'Not Yet Open';
+                                        } else if (status.label === 'Ended') {
+                                            btnText = 'Exam Ended';
+                                        }
+
+                                        return (
+                                            <button 
+                                                className={`take-btn ${isDisabled ? 'btn-disabled' : ''}`}
+                                                onClick={() => handleTakeExam(exam.id, status.isLive)}
+                                                disabled={isDisabled}
+                                            >
+                                                {btnText}
+                                            </button>
+                                        );
+                                    })()}
                                 </div>
                             );
                         })}

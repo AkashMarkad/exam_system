@@ -1,0 +1,69 @@
+@import './ConfirmModal.css'; /* Reuses overlay, card, icon, actions, etc. */
+
+.delete-modal-card {
+    max-width: 440px;
+    padding-bottom: 32px;
+}
+
+.text-error {
+    color: var(--error);
+}
+
+.delete-modal-form {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    margin-top: 10px;
+}
+
+.delete-modal-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.delete-modal-input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    margin-bottom: 24px;
+    transition: all 0.2s;
+}
+
+.delete-modal-input:focus {
+    outline: none;
+    border-color: var(--error);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.delete-modal-input:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.delete-modal-card .modal-icon {
+    font-size: 3rem;
+    margin-bottom: 12px;
+}
+
+.delete-modal-card .modal-message {
+    margin-bottom: 20px;
+}
+
+.delete-modal-card .modal-confirm {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+}
+
+.delete-modal-card .modal-confirm:disabled {
+    background: var(--border-color);
+    color: var(--text-muted);
+    box-shadow: none;
+    cursor: not-allowed;
+    transform: none;
+}

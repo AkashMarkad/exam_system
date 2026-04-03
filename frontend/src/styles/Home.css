@@ -4,6 +4,7 @@
     radial-gradient(ellipse at 10% 20%, var(--bg-gradient-1) 0%, transparent 50%),
     radial-gradient(ellipse at 90% 80%, var(--bg-gradient-2) 0%, transparent 50%),
     var(--bg-primary);
+  padding-top: 72px; /* Added for fixed navbar */
 }
 
 .home-content {

@@ -24,3 +24,16 @@ admin
 admin name
 admin@exam.com
 admin123
+----------------------------------
+
+user
+
+user@exam.com
+password
+----------------------------------
+
+user1
+
+user1@exam.com
+password
+----------------------------------

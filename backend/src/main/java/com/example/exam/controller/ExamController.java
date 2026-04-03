@@ -60,7 +60,7 @@ public class ExamController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateExam(@PathVariable Long id, @RequestBody Exam examDetails) {
+    public ResponseEntity<?> updateExam(@PathVariable("id") Long id, @RequestBody Exam examDetails) {
         try {
             Exam updatedExam = examService.updateExam(id, examDetails);
             return ResponseEntity.ok(updatedExam);
@@ -72,7 +72,7 @@ public class ExamController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteExam(@PathVariable Long id) {
+    public ResponseEntity<?> deleteExam(@PathVariable("id") Long id) {
         try {
             examService.deleteExam(id);
             return ResponseEntity.ok("Exam deleted successfully.");

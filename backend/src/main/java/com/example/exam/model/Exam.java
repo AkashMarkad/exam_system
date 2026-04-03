@@ -1,6 +1,10 @@
 package com.example.exam.model;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.OneToMany;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -42,4 +46,7 @@ public class Exam {
 
 	@Column(name = "created_at")
 	private LocalDateTime createdAt;
+
+	@OneToMany(mappedBy = "exam", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Question> questions;
 }

@@ -216,3 +216,68 @@ export function getUser() {
 export function clearUser() {
     localStorage.removeItem('user');
 }
+
+export async function startExam(examId) {
+    const response = await fetch(`${API_BASE}/attempts/start/${examId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || 'Failed to start exam');
+    }
+
+    return data;
+}
+
+export async function submitExam(attemptId, answers) {
+    const response = await fetch(`${API_BASE}/attempts/submit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ attemptId, answers }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || 'Failed to submit exam');
+    }
+
+    return data;
+}
+
+export async function getMyResults() {
+    const response = await fetch(`${API_BASE}/attempts/my-results`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch results');
+    }
+
+    return data;
+}
+
+export async function getAllResults() {
+    const response = await fetch(`${API_BASE}/attempts/all-results`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch all results');
+    }
+
+    return data;
+}

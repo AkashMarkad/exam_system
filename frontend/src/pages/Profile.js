@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getProfile, updateProfile, deleteProfile, getUser, saveUser, clearUser } from '../services/api';
 import Navbar from '../components/Navbar';
+import ConfirmModal from '../components/ConfirmModal';
 import logo from '../assets/images/logo.png';
 import '../styles/Auth.css'; // Reuse auth styles for the form
 
@@ -16,6 +17,7 @@ function Profile() {
     const [message, setMessage] = useState({ text: '', type: '' });
     const [showPassword, setShowPassword] = useState(false);
     const [fieldErrors, setFieldErrors] = useState({});
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     const userEmail = currentUser?.email;
     
@@ -105,10 +107,6 @@ function Profile() {
     };
 
     const handleDelete = async () => {
-        if (!window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-            return;
-        }
-
         setDeleting(true);
         try {
             await deleteProfile();
@@ -117,6 +115,7 @@ function Profile() {
         } catch (err) {
             setMessage({ text: err.message || 'Failed to delete account', type: 'error' });
             setDeleting(false);
+            setShowDeleteModal(false);
         }
     };
 
@@ -209,7 +208,7 @@ function Profile() {
                             Once you delete your account, there is no going back. Please be certain.
                         </p>
                         <button 
-                            onClick={handleDelete}
+                            onClick={() => setShowDeleteModal(true)}
                             disabled={saving || deleting} 
                             className="btn-danger-outline"
                         >
@@ -218,6 +217,16 @@ function Profile() {
                     </div>
                 </div>
             </div>
+
+            {showDeleteModal && (
+                <ConfirmModal 
+                    title="Delete Account"
+                    message="Are you sure you want to permanently delete your account? This action cannot be undone."
+                    confirmText={deleting ? "Deleting..." : "Delete Account"}
+                    onConfirm={handleDelete} 
+                    onCancel={() => setShowDeleteModal(false)}
+                />
+            )}
         </div>
     );
 }

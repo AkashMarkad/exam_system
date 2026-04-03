@@ -1,7 +1,9 @@
 package com.example.exam.service;
 
+import com.example.exam.model.Exam;
 import com.example.exam.model.Option;
 import com.example.exam.model.Question;
+import com.example.exam.repository.ExamRepository;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,9 @@ public class QuestionPhotoService {
 
     @Autowired
     private QuestionService questionService;
+
+    @Autowired
+    private ExamRepository examRepository;
 
     public void processPhotoFile(Long examId, MultipartFile file) throws Exception {
         
@@ -60,6 +65,8 @@ public class QuestionPhotoService {
     }
 
     private void parseAndSaveText(Long examId, String text) {
+        Exam exam = examRepository.findById(examId).orElse(null);
+        if (exam == null) return;
         // This is a naive implementation and will need robust Regex or LLM parsing for real-world scenarios.
         // We split by lines looking for Question patterns.
         String[] lines = text.split("\\r?\\n");
@@ -83,7 +90,7 @@ public class QuestionPhotoService {
                 }
 
                 currentQuestion = new Question();
-                currentQuestion.setExamId(examId);
+                currentQuestion.setExam(exam);
                 currentQuestion.setQuestionText(qMatcher.group(1));
                 currentQuestion.setMarks(1);
                 currentOptions = new ArrayList<>();

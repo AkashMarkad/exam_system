@@ -1,15 +1,17 @@
 .navbar {
-  background: var(--bg-primary);
-  opacity: 0.98;
+  background: var(--bg-card); /* Changed from primary to card for translucency */
+  backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border-color);
-  padding: 0 2rem;
-  height: 64px;
+  padding: 0 3rem;
+  height: 72px; /* Slightly taller for more presence */
   display: flex;
   align-items: center;
   justify-content: space-between;
-  position: sticky;
+  position: fixed; /* Changed from sticky to fixed */
   top: 0;
-  z-index: 100;
+  width: 100%;
+  z-index: 1000;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .navbar-brand {

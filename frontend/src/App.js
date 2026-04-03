@@ -6,6 +6,9 @@ import Home from './pages/Home';
 import Profile from './pages/Profile';
 import ManageExams from './pages/ManageExams';
 import TakeExam from './pages/TakeExam';
+import ExamExecution from './pages/ExamExecution';
+import Results from './pages/Results';
+import AdminResults from './pages/AdminResults';
 import './styles/App.css';
 
 function App() {
@@ -20,6 +23,9 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/admin/manage-exams" element={<ManageExams />} />
         <Route path="/exams" element={<TakeExam />} />
+        <Route path="/exam/:id/take" element={<ExamExecution />} />
+        <Route path="/results" element={<Results />} />
+        <Route path="/admin/results" element={<AdminResults />} />
       </Routes>
     </BrowserRouter>
   );

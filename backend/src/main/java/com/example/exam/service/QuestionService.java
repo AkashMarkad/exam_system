@@ -25,7 +25,7 @@ public class QuestionService {
         
         if (options != null) {
             for (Option option : options) {
-                option.setQuestionId(savedQuestion.getId());
+                option.setQuestion(savedQuestion);
                 optionRepository.save(option);
             }
         }

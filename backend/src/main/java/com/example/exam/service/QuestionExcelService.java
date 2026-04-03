@@ -1,7 +1,9 @@
 package com.example.exam.service;
 
+import com.example.exam.model.Exam;
 import com.example.exam.model.Option;
 import com.example.exam.model.Question;
+import com.example.exam.repository.ExamRepository;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,9 @@ public class QuestionExcelService {
 
     @Autowired
     private QuestionService questionService;
+
+    @Autowired
+    private ExamRepository examRepository;
 
     public void processExcelFile(Long examId, MultipartFile file) throws Exception {
         try (InputStream is = file.getInputStream();
@@ -46,8 +51,11 @@ public class QuestionExcelService {
                 // Process correct answers (e.g., "[A,B]" -> ["A", "B"])
                 List<String> correctOptions = parseCorrectAnswers(correctAnswersStr);
 
+                Exam exam = examRepository.findById(examId).orElse(null);
+                if (exam == null) continue;
+
                 Question question = new Question();
-                question.setExamId(examId);
+                question.setExam(exam);
                 question.setQuestionText(questionText);
                 question.setMarks(1); // Default marks, can be enhanced to come from excel
 

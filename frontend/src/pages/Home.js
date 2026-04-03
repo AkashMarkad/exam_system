@@ -31,6 +31,7 @@ function Home() {
             title: 'View Results',
             description: 'Check your scores, review answers, and track your performance over time.',
             tag: 'Available',
+            link: '/results'
         },
         {
             icon: '📚',
@@ -58,6 +59,14 @@ function Home() {
                 tag: 'Admin',
                 tagClass: '',
                 link: '/admin/manage-exams'
+            },
+            {
+                icon: '📊',
+                title: 'Admin Results',
+                description: 'View and export student performance data across all exams.',
+                tag: 'Admin',
+                tagClass: '',
+                link: '/admin/results'
             },
             {
                 icon: '👥',
