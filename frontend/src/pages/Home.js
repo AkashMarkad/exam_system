@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getUser } from '../services/api';
+import { getUser, getMyResults } from '../services/api';
 import Navbar from '../components/Navbar';
 import '../styles/Home.css';
 
@@ -9,11 +9,33 @@ function Home() {
     const user = getUser();
     const userEmail = user?.email;
 
+    const [stats, setStats] = useState({ examsTaken: 0, passed: 0, avgScore: null });
+    const [statsLoading, setStatsLoading] = useState(true);
+
     useEffect(() => {
         if (!userEmail) {
             navigate('/login');
         }
     }, [userEmail, navigate]);
+
+    useEffect(() => {
+        if (!userEmail) return;
+        getMyResults()
+            .then(results => {
+                const taken = results.length;
+                const passed = results.filter(r =>
+                    r.totalMarks > 0 && (r.score / r.totalMarks) >= 0.5
+                ).length;
+                const avg = taken > 0
+                    ? (results.reduce((sum, r) =>
+                        sum + (r.totalMarks > 0 ? (r.score / r.totalMarks) * 100 : 0), 0) / taken
+                    ).toFixed(1)
+                    : null;
+                setStats({ examsTaken: taken, passed, avgScore: avg });
+            })
+            .catch(() => { /* silently ignore — stats are non-critical */ })
+            .finally(() => setStatsLoading(false));
+    }, [userEmail]);
 
     if (!user) return null;
 
@@ -34,19 +56,21 @@ function Home() {
             link: '/results'
         },
         {
+            icon: '🏆',
+            title: 'Leaderboard',
+            description: 'See how you rank among other students and compete for the top position.',
+            tag: 'New',
+            tagClass: 'tag-new',
+            link: '/leaderboard'
+        },
+        {
             icon: '📚',
             title: 'Study Materials',
             description: 'Access study guides and resources to prepare for upcoming exams.',
             tag: 'Coming Soon',
             tagClass: 'coming-soon',
-        },
-        {
-            icon: '🏆',
-            title: 'Leaderboard',
-            description: 'See how you rank among other students and compete for the top position.',
-            tag: 'Coming Soon',
-            tagClass: 'coming-soon',
         }
+
     ];
 
     // Admin-only features
@@ -78,6 +102,8 @@ function Home() {
         );
     }
 
+    const avgDisplay = statsLoading ? '...' : (stats.avgScore !== null ? `${stats.avgScore}%` : '—');
+
     return (
         <div className="home-page">
             <Navbar />
@@ -94,21 +120,21 @@ function Home() {
                     <div className="stat-card">
                         <div className="stat-icon purple">📋</div>
                         <div className="stat-info">
-                            <h3>0</h3>
+                            <h3>{statsLoading ? '...' : stats.examsTaken}</h3>
                             <p>Exams Taken</p>
                         </div>
                     </div>
                     <div className="stat-card">
                         <div className="stat-icon blue">✅</div>
                         <div className="stat-info">
-                            <h3>0</h3>
+                            <h3>{statsLoading ? '...' : stats.passed}</h3>
                             <p>Passed</p>
                         </div>
                     </div>
                     <div className="stat-card">
                         <div className="stat-icon teal">⭐</div>
                         <div className="stat-info">
-                            <h3>—</h3>
+                            <h3>{avgDisplay}</h3>
                             <p>Avg. Score</p>
                         </div>
                     </div>
@@ -117,8 +143,8 @@ function Home() {
                 <h2 className="features-heading">Quick Actions</h2>
                 <div className="features-grid">
                     {features.map((feature, index) => (
-                        <div 
-                            className="feature-card" 
+                        <div
+                            className="feature-card"
                             key={index}
                             onClick={() => feature.link && navigate(feature.link)}
                             style={{ cursor: feature.link ? 'pointer' : 'default' }}

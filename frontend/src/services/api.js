@@ -281,3 +281,35 @@ export async function getAllResults() {
 
     return data;
 }
+
+export async function getLeaderboard() {
+    const response = await fetch(`${API_BASE}/leaderboard`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch leaderboard');
+    }
+
+    return data;
+}
+
+export async function getLeaderboardByExam(examId) {
+    const response = await fetch(`${API_BASE}/leaderboard/${examId}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch exam leaderboard');
+    }
+
+    return data;
+}

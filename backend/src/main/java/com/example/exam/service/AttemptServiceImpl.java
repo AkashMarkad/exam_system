@@ -21,7 +21,7 @@ public class AttemptServiceImpl implements AttemptService {
     private final UserRepository userRepository;
     private final QuestionRepository questionRepository;
 
-    public AttemptServiceImpl(ExamRepository examRepository, 
+    public AttemptServiceImpl(ExamRepository examRepository,
                               ExamAttemptRepository attemptRepository,
                               UserAnswerRepository answerRepository,
                               UserRepository userRepository,
@@ -56,13 +56,17 @@ public class AttemptServiceImpl implements AttemptService {
 
         if (existingAttempt.isPresent()) {
             attempt = existingAttempt.get();
-            // Calculate remaining time
             long elapsedSeconds = ChronoUnit.SECONDS.between(attempt.getStartTime(), now);
             long totalSeconds = exam.getDurationMinutes() * 60L;
             remainingTimeSeconds = Math.max(0, totalSeconds - elapsedSeconds);
+
+            // Bug fix: if time has already expired, auto-complete the stale attempt
             if (remainingTimeSeconds == 0) {
-                // Time already up, auto submit (or handle error). 
-                // For simplicity, let frontend submit it when time reads 0.
+                attempt.setEndTime(now);
+                attempt.setScore(0);
+                attempt.setStatus("completed");
+                attemptRepository.save(attempt);
+                throw new RuntimeException("Exam time has already expired. Your attempt has been recorded.");
             }
         } else {
             // Check if already completed
@@ -99,13 +103,20 @@ public class AttemptServiceImpl implements AttemptService {
         }
 
         if ("completed".equals(attempt.getStatus())) {
-            throw new RuntimeException("Attempt already submitted.");
+            // Already submitted — return gracefully instead of throwing an error
+            Exam examForResult = examRepository.findById(attempt.getExamId())
+                    .orElseThrow(() -> new RuntimeException("Exam not found"));
+            Map<String, Object> result = new HashMap<>();
+            result.put("message", "Exam already submitted");
+            result.put("score", attempt.getScore());
+            result.put("totalMarks", examForResult.getTotalMarks());
+            return result;
         }
 
         Exam exam = examRepository.findById(attempt.getExamId())
                 .orElseThrow(() -> new RuntimeException("Exam not found"));
 
-        // Delete previous answers if any (in case of multiple partial saves, though we only save on submit)
+        // Delete previous answers if any
         answerRepository.deleteByAttemptId(attempt.getId());
 
         int score = 0;
@@ -124,7 +135,6 @@ public class AttemptServiceImpl implements AttemptService {
                     ua.setSelectedOptionId(optId);
                     answersToSave.add(ua);
 
-                    // Calculate score
                     if (optId != null) {
                         for (Option opt : q.getOptions()) {
                             if (opt.getId().equals(optId) && opt.getIsCorrect()) {
@@ -159,10 +169,10 @@ public class AttemptServiceImpl implements AttemptService {
         List<Map<String, Object>> results = new ArrayList<>();
 
         for (ExamAttempt attempt : attempts) {
-            Map<String, Object> map = new HashMap<>();
             Optional<Exam> examOpt = examRepository.findById(attempt.getExamId());
             if (examOpt.isPresent()) {
                 Exam exam = examOpt.get();
+                Map<String, Object> map = new HashMap<>();
                 map.put("attemptId", attempt.getId());
                 map.put("examId", exam.getId());
                 map.put("examName", exam.getName());
@@ -182,13 +192,13 @@ public class AttemptServiceImpl implements AttemptService {
 
         for (ExamAttempt attempt : attempts) {
             if ("completed".equalsIgnoreCase(attempt.getStatus())) {
-                Map<String, Object> map = new HashMap<>();
                 Optional<Exam> examOpt = examRepository.findById(attempt.getExamId());
                 Optional<User> userOpt = userRepository.findById(attempt.getUserId());
 
                 if (examOpt.isPresent() && userOpt.isPresent()) {
                     Exam exam = examOpt.get();
                     User user = userOpt.get();
+                    Map<String, Object> map = new HashMap<>();
                     map.put("attemptId", attempt.getId());
                     map.put("studentName", user.getName());
                     map.put("studentEmail", user.getEmail());
@@ -201,6 +211,77 @@ public class AttemptServiceImpl implements AttemptService {
             }
         }
         return results;
+    }
+
+    @Override
+    public List<Map<String, Object>> getLeaderboard() {
+        List<ExamAttempt> attempts = attemptRepository.findByStatusOrderByScoreDesc("completed");
+        List<Map<String, Object>> leaderboard = new ArrayList<>();
+        int rank = 1;
+
+        for (ExamAttempt attempt : attempts) {
+            Optional<Exam> examOpt = examRepository.findById(attempt.getExamId());
+            Optional<User> userOpt = userRepository.findById(attempt.getUserId());
+
+            if (examOpt.isPresent() && userOpt.isPresent()) {
+                Exam exam = examOpt.get();
+                User user = userOpt.get();
+                double percentage = exam.getTotalMarks() > 0
+                        ? Math.round(((double) attempt.getScore() / exam.getTotalMarks()) * 1000.0) / 10.0
+                        : 0.0;
+
+                Map<String, Object> entry = new HashMap<>();
+                entry.put("rank", rank++);
+                entry.put("studentName", user.getName());
+                entry.put("studentEmail", user.getEmail());
+                entry.put("examId", exam.getId());
+                entry.put("examName", exam.getName());
+                entry.put("score", attempt.getScore());
+                entry.put("totalMarks", exam.getTotalMarks());
+                entry.put("percentage", percentage);
+                entry.put("completedAt", attempt.getEndTime());
+                leaderboard.add(entry);
+            }
+        }
+        return leaderboard;
+    }
+
+    @Override
+    public List<Map<String, Object>> getLeaderboardByExam(Long examId) {
+        Exam exam = examRepository.findById(examId)
+                .orElseThrow(() -> new RuntimeException("Exam not found"));
+
+        List<ExamAttempt> attempts = new ArrayList<>(
+                attemptRepository.findByExamIdAndStatus(examId, "completed"));
+        attempts.sort((a, b) -> Integer.compare(
+                b.getScore() != null ? b.getScore() : 0,
+                a.getScore() != null ? a.getScore() : 0));
+
+        List<Map<String, Object>> leaderboard = new ArrayList<>();
+        int rank = 1;
+
+        for (ExamAttempt attempt : attempts) {
+            Optional<User> userOpt = userRepository.findById(attempt.getUserId());
+            if (userOpt.isPresent()) {
+                User user = userOpt.get();
+                double percentage = exam.getTotalMarks() > 0
+                        ? Math.round(((double) attempt.getScore() / exam.getTotalMarks()) * 1000.0) / 10.0
+                        : 0.0;
+
+                Map<String, Object> entry = new HashMap<>();
+                entry.put("rank", rank++);
+                entry.put("studentName", user.getName());
+                entry.put("studentEmail", user.getEmail());
+                entry.put("examId", exam.getId());
+                entry.put("examName", exam.getName());
+                entry.put("score", attempt.getScore());
+                entry.put("totalMarks", exam.getTotalMarks());
+                entry.put("percentage", percentage);
+                entry.put("completedAt", attempt.getEndTime());
+                leaderboard.add(entry);
+            }
+        }
+        return leaderboard;
     }
 
     private ExamExecutionDto mapToExecutionDto(Exam exam) {

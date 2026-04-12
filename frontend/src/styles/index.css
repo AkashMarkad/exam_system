@@ -1,5 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
+/* ============================================================
+   CSS VARIABLES (DESIGN TOKENS)
+   ============================================================ */
 :root {
   --bg-primary: #0a0a1a;
   --bg-secondary: #12122a;
@@ -15,11 +18,13 @@
   --accent-teal: #06b6d4;
   --error: #ef4444;
   --success: #22c55e;
+  --warning: #f59e0b;
   --radius: 12px;
   --shadow-glow: 0 0 40px rgba(124, 58, 237, 0.15);
   --bg-gradient-1: rgba(124, 58, 237, 0.12);
   --bg-gradient-2: rgba(6, 182, 212, 0.1);
   --input-bg: rgba(255, 255, 255, 0.04);
+  --transition: all 0.25s ease;
 }
 
 [data-theme='light'] {
@@ -37,6 +42,9 @@
   --input-bg: #fff;
 }
 
+/* ============================================================
+   BASE RESET
+   ============================================================ */
 * {
   margin: 0;
   padding: 0;
@@ -58,28 +66,168 @@ a {
   transition: color 0.2s;
 }
 
-a:hover {
-  color: var(--accent-teal);
-}
+a:hover { color: var(--accent-teal); }
 
 ::selection {
   background: rgba(124, 58, 237, 0.3);
   color: #fff;
 }
 
-::-webkit-scrollbar {
-  width: 6px;
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+/* ============================================================
+   GLOBAL DESIGN SYSTEM — Buttons
+   ============================================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+  text-decoration: none;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+  line-height: 1;
 }
 
-::-webkit-scrollbar-track {
-  background: var(--bg-primary);
+/* Size variants */
+.btn-sm  { padding: 0.45rem 1rem;  font-size: 0.82rem; border-radius: 8px; }
+.btn-md  { padding: 0.72rem 1.5rem; font-size: 0.92rem; }
+.btn-lg  { padding: 0.9rem 2rem;   font-size: 1rem;    border-radius: 14px; }
+
+/* Primary — gradient fill */
+.btn-primary {
+  background: var(--accent-gradient);
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.25);
+}
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(124, 58, 237, 0.4);
+}
+.btn-primary:active:not(:disabled) { transform: translateY(0); }
+
+/* Secondary — outlined */
+.btn-secondary {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1.5px solid var(--border-color);
+}
+.btn-secondary:hover:not(:disabled) {
+  background: var(--bg-card-hover);
+  border-color: var(--accent-purple);
+  color: var(--accent-purple);
 }
 
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
+/* Danger */
+.btn-danger {
+  background: var(--error);
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);
+}
+.btn-danger:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35);
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+/* Danger outline */
+.btn-danger-outline {
+  background: transparent;
+  color: var(--error);
+  border: 1.5px solid rgba(239, 68, 68, 0.4);
 }
+.btn-danger-outline:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: var(--error);
+}
+
+/* Ghost */
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+.btn-ghost:hover:not(:disabled) {
+  background: var(--input-bg);
+  color: var(--text-primary);
+}
+
+/* Success */
+.btn-success {
+  background: var(--success);
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(34, 197, 94, 0.2);
+}
+.btn-success:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.35);
+}
+
+/* Disabled — universal */
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+
+/* ============================================================
+   GLOBAL DESIGN SYSTEM — Cards
+   ============================================================ */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: var(--transition);
+}
+
+.card-hover:hover {
+  background: var(--bg-card-hover);
+  box-shadow: var(--shadow-glow);
+  transform: translateY(-3px);
+}
+
+/* ============================================================
+   GLOBAL DESIGN SYSTEM — Spinner & Animations
+   ============================================================ */
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--accent-purple);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin        { to { transform: rotate(360deg); } }
+@keyframes fadeInUp    { from { opacity:0; transform:translateY(20px);  } to { opacity:1; transform:translateY(0); } }
+@keyframes fadeInDown  { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
+@keyframes cardFadeIn  { from { opacity:0; transform:translateY(20px);  } to { opacity:1; transform:translateY(0); } }
+
+/* ============================================================
+   GLOBAL DESIGN SYSTEM — Badges / Tags
+   ============================================================ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.65rem;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 1px solid transparent;
+}
+.badge-purple { background: rgba(124,58,237,0.12); color:var(--accent-purple); border-color:rgba(124,58,237,0.2); }
+.badge-blue   { background: rgba(59,130,246,0.12);  color:var(--accent-blue);   border-color:rgba(59,130,246,0.2); }
+.badge-teal   { background: rgba(6,182,212,0.12);   color:var(--accent-teal);   border-color:rgba(6,182,212,0.2); }
+.badge-green  { background: rgba(34,197,94,0.12);   color:var(--success);       border-color:rgba(34,197,94,0.2); }
+.badge-red    { background: rgba(239,68,68,0.12);   color:var(--error);         border-color:rgba(239,68,68,0.2); }
+.badge-muted  { background: rgba(100,100,150,0.08); color:var(--text-muted);    border-color:var(--border-color); }

@@ -9,6 +9,7 @@ import TakeExam from './pages/TakeExam';
 import ExamExecution from './pages/ExamExecution';
 import Results from './pages/Results';
 import AdminResults from './pages/AdminResults';
+import Leaderboard from './pages/Leaderboard';
 import './styles/App.css';
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
         <Route path="/exam/:id/take" element={<ExamExecution />} />
         <Route path="/results" element={<Results />} />
         <Route path="/admin/results" element={<AdminResults />} />
+        <Route path="/leaderboard" element={<Leaderboard />} />
       </Routes>
     </BrowserRouter>
   );

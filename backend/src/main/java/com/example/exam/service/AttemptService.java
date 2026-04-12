@@ -14,4 +14,9 @@ public interface AttemptService {
     List<Map<String, Object>> getUserResults(String email);
 
     List<Map<String, Object>> getAllResults();
+
+    List<Map<String, Object>> getLeaderboard();
+
+    List<Map<String, Object>> getLeaderboardByExam(Long examId);
 }
+
