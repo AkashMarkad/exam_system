@@ -6,6 +6,8 @@ import com.example.exam.repository.ExamRepository;
 import com.example.exam.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,6 +28,7 @@ public class ExamService {
     @Autowired
     private QuestionPhotoService questionPhotoService;
 
+    @CacheEvict(value = {"exams", "leaderboard"}, allEntries = true)
     @Transactional(rollbackFor = Exception.class)
     public Exam createExamWithQuestions(Exam exam, MultipartFile file, String uploadType, String userEmail) throws Exception {
         User user = userRepository.findByEmail(userEmail)
@@ -49,10 +52,12 @@ public class ExamService {
         return savedExam;
     }
 
+    @Cacheable(value = "exams")
     public java.util.List<Exam> getAllExams() {
         return examRepository.findAll();
     }
 
+    @CacheEvict(value = {"exams", "leaderboard"}, allEntries = true)
     @Transactional
     public Exam updateExam(Long id, Exam examDetails) throws Exception {
         Exam exam = examRepository.findById(id)
@@ -68,6 +73,7 @@ public class ExamService {
         return examRepository.save(exam);
     }
 
+    @CacheEvict(value = {"exams", "leaderboard"}, allEntries = true)
     @Transactional
     public void deleteExam(Long id) throws Exception {
         Exam exam = examRepository.findById(id)

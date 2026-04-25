@@ -16,6 +16,10 @@ function ExamExecution() {
     const [instructionTimeLeft, setInstructionTimeLeft] = useState(30);
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
 
+    // Full-screen enforcement
+    const [isFullScreen, setIsFullScreen] = useState(true);
+    const [fullscreenGraceTime, setFullscreenGraceTime] = useState(30);
+
     // Status flags
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -128,6 +132,45 @@ function ExamExecution() {
     }, [handleTabViolation]);
     // ==========================================
 
+    // ===== FULLSCREEN MONITORING =====
+    useEffect(() => {
+        const handleFullscreenChange = () => {
+            if (stageRef.current !== 'exam' || submittingRef.current) return;
+            if (!document.fullscreenElement) {
+                setIsFullScreen(false);
+                setFullscreenGraceTime(30);
+            } else {
+                setIsFullScreen(true);
+            }
+        };
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    }, []);
+
+    useEffect(() => {
+        if (stage !== 'exam' || isFullScreen || submittingRef.current) return;
+        if (fullscreenGraceTime <= 0) {
+            autoSubmit();
+            return;
+        }
+        const timerId = setInterval(() => {
+            setFullscreenGraceTime(prev => prev - 1);
+        }, 1000);
+        return () => clearInterval(timerId);
+    }, [isFullScreen, fullscreenGraceTime, stage]);
+
+    const returnToFullscreen = async () => {
+        try {
+            if (document.documentElement.requestFullscreen) {
+                await document.documentElement.requestFullscreen();
+            }
+            setIsFullScreen(true);
+        } catch (err) {
+            console.error('Fullscreen failed:', err);
+        }
+    };
+    // ==========================================
+
     const initExam = async () => {
         try {
             const data = await startExam(id);
@@ -189,8 +232,28 @@ function ExamExecution() {
         }
     };
 
-    const handleOptionSelect = (qId, optionId) => {
-        setAnswers(prev => ({ ...prev, [qId]: optionId }));
+    const handleOptionSelect = (qId, optionId, isMultiChoice) => {
+        setAnswers(prev => {
+            const currentSelected = prev[qId] || [];
+            if (isMultiChoice) {
+                if (currentSelected.includes(optionId)) {
+                    // Deselect
+                    const updated = currentSelected.filter(id => id !== optionId);
+                    if (updated.length === 0) {
+                        const next = { ...prev };
+                        delete next[qId];
+                        return next;
+                    }
+                    return { ...prev, [qId]: updated };
+                } else {
+                    // Select additional
+                    return { ...prev, [qId]: [...currentSelected, optionId] };
+                }
+            } else {
+                // Single choice
+                return { ...prev, [qId]: [optionId] };
+            }
+        });
     };
 
     const handleClearSelection = (qId) => {
@@ -283,7 +346,7 @@ function ExamExecution() {
                     </div>
                 </header>
 
-                <div className="exam-exec-container flex-center" style={{ height: 'calc(100vh - 80px)' }}>
+                <div className="exam-exec-container flex-center">
                     <div className="instructions-card premium-glass">
                         <div className="instructions-header">
                             <div className="instructions-icon-wrapper">
@@ -321,19 +384,19 @@ function ExamExecution() {
                             <h3 className="rules-heading">Security & Guidelines</h3>
                             <ul className="premium-rules-list">
                                 <li>
-                                    <span className="rule-icon info-icon">🖥️</span>
+                                    <span className="rule-icon">🖥️</span>
                                     <span className="rule-text">The exam will automatically activate <strong>full-screen mode</strong> upon starting.</span>
                                 </li>
                                 <li>
-                                    <span className="rule-icon warning-icon">⚠️</span>
+                                    <span className="rule-icon">⚠️</span>
                                     <span className="rule-text"><strong>Tab switching is strictly monitored.</strong> Navigating away from the window may result in penalties.</span>
                                 </li>
                                 <li>
-                                    <span className="rule-icon danger-icon">🚨</span>
+                                    <span className="rule-icon">🚨</span>
                                     <span className="rule-text">After <strong>3 tab-switch violations</strong>, your exam will be automatically submitted without warning.</span>
                                 </li>
                                 <li>
-                                    <span className="rule-icon timer-icon">⏳</span>
+                                    <span className="rule-icon">⏳</span>
                                     <span className="rule-text">The assessment will auto-submit exactly when the timer reaches zero.</span>
                                 </li>
                             </ul>
@@ -376,11 +439,32 @@ function ExamExecution() {
     }
 
     const currentQuestion = exam.questions[currentQuestionIndex];
-    const isAnswered = (idx) => answers[exam.questions[idx].id] !== undefined;
+    const isAnswered = (idx) => answers[exam.questions[idx].id] !== undefined && answers[exam.questions[idx].id].length > 0;
     const answeredCount = Object.keys(answers).length;
 
     return (
         <div className="exam-exec-page">
+            {/* Fullscreen Violation Overlay */}
+            {!isFullScreen && stage === 'exam' && !submitting && (
+                <div className="fullscreen-warning-overlay">
+                    <div className="warning-content">
+                        <span className="fullscreen-warning-icon">⚠️</span>
+                        <h3>Action Required: Exited Full Screen</h3>
+                        <p>
+                            You have exited full-screen mode. This is a strict violation of exam rules.
+                            Please return to full screen immediately.
+                        </p>
+                        <div className="countdown-ring"></div>
+                        <p style={{ marginTop: '20px', color: 'var(--error)', fontSize: '1.2rem' }}>
+                            <strong>Auto-submitting in: {fullscreenGraceTime}s</strong>
+                        </p>
+                        <button className="btn btn-primary btn-lg mt-4" onClick={returnToFullscreen}>
+                            Return to Full Screen
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {/* Tab Warning Banner */}
             {showTabWarning && (
                 <div className={getWarningClass()}>
@@ -434,11 +518,15 @@ function ExamExecution() {
             {showSubmitModal && (
                 <div className="custom-modal-overlay">
                     <div className="custom-modal">
-                        <div className="modal-icon">📤</div>
-                        <h3>Submit Exam?</h3>
+                        <div className="modal-icon">🏁</div>
+                        <h3>Finish Exam?</h3>
                         <p>
+                            Are you sure you want to finish and submit your exam?<br />
                             You have answered <strong>{answeredCount}</strong> of <strong>{exam.questions.length}</strong> questions.
-                            This action cannot be undone.
+                            {answeredCount < exam.questions.length && (
+                                <><br /><span style={{ color: 'var(--warning)' }}>⚠ {exam.questions.length - answeredCount} question{exam.questions.length - answeredCount !== 1 ? 's' : ''} left unanswered.</span></>
+                            )}
+                            <br /><br />This action <strong>cannot be undone</strong>.
                         </p>
                         <div className="modal-actions">
                             <button className="btn btn-secondary btn-md btn-modal-cancel" onClick={() => setShowSubmitModal(false)}>Continue Exam</button>
@@ -452,7 +540,10 @@ function ExamExecution() {
                 <main className="exam-main-panel">
                     <div className="question-header">
                         <h3>Question {currentQuestionIndex + 1} of {exam.questions.length}</h3>
-                        <span className="question-marks">[{currentQuestion.marks} Mark{currentQuestion.marks !== 1 ? 's' : ''}]</span>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                            <span className="question-marks">[{currentQuestion.marks} Mark{currentQuestion.marks !== 1 ? 's' : ''}]</span>
+                            {currentQuestion.multiChoice && <span className="badge badge-purple" style={{ fontSize: '0.65rem' }}>Multiple Choice</span>}
+                        </div>
                     </div>
 
                     <div className="question-content">
@@ -460,21 +551,24 @@ function ExamExecution() {
                     </div>
 
                     <div className="options-container">
-                        {currentQuestion.options.map(opt => (
-                            <label
-                                key={opt.id}
-                                className={`option-item ${answers[currentQuestion.id] === opt.id ? 'selected' : ''}`}
-                            >
-                                <input
-                                    type="radio"
-                                    name={`question-${currentQuestion.id}`}
-                                    value={opt.id}
-                                    checked={answers[currentQuestion.id] === opt.id}
-                                    onChange={() => handleOptionSelect(currentQuestion.id, opt.id)}
-                                />
-                                <span className="option-text">{opt.optionText}</span>
-                            </label>
-                        ))}
+                        {currentQuestion.options.map(opt => {
+                            const isSelected = (answers[currentQuestion.id] || []).includes(opt.id);
+                            return (
+                                <label
+                                    key={opt.id}
+                                    className={`option-item ${isSelected ? 'selected' : ''}`}
+                                >
+                                    <input
+                                        type={currentQuestion.multiChoice ? "checkbox" : "radio"}
+                                        name={`question-${currentQuestion.id}`}
+                                        value={opt.id}
+                                        checked={isSelected}
+                                        onChange={() => handleOptionSelect(currentQuestion.id, opt.id, currentQuestion.multiChoice)}
+                                    />
+                                    <span className="option-text">{opt.optionText}</span>
+                                </label>
+                            );
+                        })}
                     </div>
 
                     <div className="question-actions">
@@ -504,7 +598,8 @@ function ExamExecution() {
                             ) : (
                                 <button
                                     className="btn btn-success btn-md submit-btn"
-                                    onClick={handleManualSubmit}
+                                    style={{ padding: '8px 20px', fontSize: '0.9rem' }}
+                                    onClick={() => setShowSubmitModal(true)}
                                     disabled={submitting}
                                 >
                                     Submit Exam

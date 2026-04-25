@@ -192,9 +192,6 @@ function Leaderboard() {
                                         </td>
                                         <td className="student-cell">
                                             <div className="student-info">
-                                                <div className="student-avatar">
-                                                    {entry.studentName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
-                                                </div>
                                                 <div>
                                                     <div className="student-name">
                                                         {entry.studentName}

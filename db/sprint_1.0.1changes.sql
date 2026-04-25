@@ -96,4 +96,4 @@ CREATE TABLE IF NOT EXISTS user_answer (
 
 -- Index on attempt_id for fetching answers quickly
 CREATE INDEX IF NOT EXISTS idx_user_answer_attempt_id ON user_answer(attempt_id);
-CREATE INDEX IF NOT EXISTS idx_user_answer_question_id ON user_answer(question_id);
+CREATE INDEX IF NOT EXISTS idx_user_answer_question_id ON user_answer(question_id); 

@@ -10,7 +10,7 @@
 .results-container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 60px 40px;
+    padding: 40px 40px;
 }
 
 .results-header {
@@ -23,9 +23,9 @@
 }
 
 .results-header .header-content h1 {
-    font-size: 2.2rem;
+    font-size: 1.6rem;
     color: var(--text-primary);
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 
 .results-header .header-content p {

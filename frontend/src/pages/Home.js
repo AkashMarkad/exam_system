@@ -85,14 +85,6 @@ function Home() {
                 link: '/admin/manage-exams'
             },
             {
-                icon: '📊',
-                title: 'Admin Results',
-                description: 'View and export student performance data across all exams.',
-                tag: 'Admin',
-                tagClass: '',
-                link: '/admin/results'
-            },
-            {
                 icon: '👥',
                 title: 'User Management',
                 description: 'Manage user accounts, roles, and permissions.',

@@ -10,13 +10,12 @@
 .manage-exams-container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 20px 24px;
+    padding: 40px 24px 80px;
     display: grid;
-    grid-template-columns: 1.5fr 1fr;
-    gap: 28px;
-    height: calc(100vh - 80px);
-    align-items: stretch;
-    overflow: hidden;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 40px;
+    align-items: start;
+    overflow: visible;
 }
 
 /* ===== FORM CARD (RIGHT - FIXED PANEL) ===== */
@@ -28,8 +27,9 @@
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-    position: relative;
-    overflow-y: auto;
+    position: sticky;
+    top: 100px;
+    overflow: visible;
 }
 
 /* Decorative gradient line at the top of the form card */
@@ -190,7 +190,7 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .exams-list-content h2 {
@@ -277,27 +277,11 @@
 /* ===== SCROLLABLE EXAM LIST ===== */
 .exams-scroll-area {
     flex: 1;
-    overflow-y: auto;
-    padding-right: 6px;
-    min-height: 0;
+    overflow: visible;
+    padding-right: 0;
 }
 
-.exams-scroll-area::-webkit-scrollbar {
-    width: 5px;
-}
 
-.exams-scroll-area::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.exams-scroll-area::-webkit-scrollbar-thumb {
-    background: rgba(124, 58, 237, 0.2);
-    border-radius: 10px;
-}
-
-.exams-scroll-area::-webkit-scrollbar-thumb:hover {
-    background: rgba(124, 58, 237, 0.4);
-}
 
 .no-exams-msg {
     text-align: center;
@@ -493,24 +477,15 @@
 @media (max-width: 900px) {
     .manage-exams-container {
         grid-template-columns: 1fr;
-        height: auto;
-        overflow: visible;
         padding: 20px 16px 40px;
-        gap: 24px;
+        gap: 40px;
     }
 
     .manage-exams-content {
+        position: relative;
+        top: 0;
         order: -1;
         padding: 24px 20px;
-        overflow-y: visible;
-    }
-
-    .exams-list-content {
-        overflow: visible;
-    }
-
-    .exams-scroll-area {
-        overflow-y: visible;
     }
 
     .flex-row {
@@ -524,5 +499,7 @@
 
     .exam-actions {
         align-self: flex-end;
+        margin-top: 10px;
     }
 }
+

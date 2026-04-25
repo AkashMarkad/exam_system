@@ -2,6 +2,8 @@ package com.example.exam.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 
 import com.example.exam.dto.*;
 import com.example.exam.model.*;
@@ -89,6 +91,7 @@ public class AttemptServiceImpl implements AttemptService {
         return new StartExamResponse(attempt.getId(), executionDto, remainingTimeSeconds);
     }
 
+    @CacheEvict(value = "leaderboard", allEntries = true)
     @Override
     @Transactional
     public Map<String, Object> submitAttempt(SubmitExamRequest request, String email) {
@@ -123,24 +126,28 @@ public class AttemptServiceImpl implements AttemptService {
         List<UserAnswer> answersToSave = new ArrayList<>();
 
         if (request.getAnswers() != null) {
-            for (Map.Entry<Long, Long> entry : request.getAnswers().entrySet()) {
+            for (Map.Entry<Long, List<Long>> entry : request.getAnswers().entrySet()) {
                 Long qId = entry.getKey();
-                Long optId = entry.getValue();
+                List<Long> optIds = entry.getValue();
 
                 Question q = questionRepository.findById(qId).orElse(null);
                 if (q != null && q.getExam().getId().equals(exam.getId())) {
-                    UserAnswer ua = new UserAnswer();
-                    ua.setAttemptId(attempt.getId());
-                    ua.setQuestionId(q.getId());
-                    ua.setSelectedOptionId(optId);
-                    answersToSave.add(ua);
+                    if (optIds != null && !optIds.isEmpty()) {
+                        for (Long optId : optIds) {
+                            UserAnswer ua = new UserAnswer();
+                            ua.setAttemptId(attempt.getId());
+                            ua.setQuestionId(q.getId());
+                            ua.setSelectedOptionId(optId);
+                            answersToSave.add(ua);
+                        }
 
-                    if (optId != null) {
-                        for (Option opt : q.getOptions()) {
-                            if (opt.getId().equals(optId) && opt.getIsCorrect()) {
-                                score += q.getMarks();
-                                break;
-                            }
+                        List<Long> correctOptionIds = q.getOptions().stream()
+                            .filter(Option::getIsCorrect)
+                            .map(Option::getId)
+                            .collect(Collectors.toList());
+
+                        if (correctOptionIds.containsAll(optIds) && optIds.containsAll(correctOptionIds)) {
+                            score += q.getMarks();
                         }
                     }
                 }
@@ -213,6 +220,7 @@ public class AttemptServiceImpl implements AttemptService {
         return results;
     }
 
+    @Cacheable(value = "leaderboard", key = "'overall'")
     @Override
     public List<Map<String, Object>> getLeaderboard() {
         List<ExamAttempt> attempts = attemptRepository.findByStatusOrderByScoreDesc("completed");
@@ -246,6 +254,7 @@ public class AttemptServiceImpl implements AttemptService {
         return leaderboard;
     }
 
+    @Cacheable(value = "leaderboard", key = "#examId")
     @Override
     public List<Map<String, Object>> getLeaderboardByExam(Long examId) {
         Exam exam = examRepository.findById(examId)
@@ -286,10 +295,11 @@ public class AttemptServiceImpl implements AttemptService {
 
     private ExamExecutionDto mapToExecutionDto(Exam exam) {
         List<QuestionExecutionDto> questions = exam.getQuestions().stream().map(q -> {
+            boolean multiChoice = q.getOptions().stream().filter(Option::getIsCorrect).count() > 1;
             List<OptionExecutionDto> options = q.getOptions().stream()
                     .map(opt -> new OptionExecutionDto(opt.getId(), opt.getOptionText()))
                     .collect(Collectors.toList());
-            return new QuestionExecutionDto(q.getId(), q.getQuestionText(), q.getMarks(), options);
+            return new QuestionExecutionDto(q.getId(), q.getQuestionText(), q.getMarks(), multiChoice, options);
         }).collect(Collectors.toList());
 
         return new ExamExecutionDto(

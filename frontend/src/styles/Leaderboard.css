@@ -246,27 +246,20 @@
 }
 
 .leaderboard-table tbody td {
-    padding: 1rem 1.5rem;
+    padding: 0.85rem 1.25rem;
     vertical-align: middle;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-size: 0.9rem;
 }
 
 /* Current user highlight */
 .current-user-row td {
-    background: rgba(124, 58, 237, 0.06) !important;
+    background: rgba(124, 58, 237, 0.08) !important;
 }
 
-.current-user-row {
-    position: relative;
-}
-
-.current-user-row::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 3px;
-    background: var(--accent-gradient);
+.current-user-row td:first-child {
+    box-shadow: inset 4px 0 0 var(--accent-gradient);
 }
 
 /* Rank */
@@ -280,10 +273,10 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    font-size: 0.9rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    font-size: 0.85rem;
     font-weight: 800;
     background: var(--bg-secondary);
     color: var(--text-secondary);
@@ -295,10 +288,10 @@
 /* Trophy emojis for top 3 — same fixed box, just larger font */
 .rank-1, .rank-2, .rank-3 {
     background: transparent;
-    font-size: 1.6rem;
+    font-size: 1.4rem;
     border: none;
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
 }
 
 /* Student */
@@ -311,17 +304,7 @@
 }
 
 .student-avatar {
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
-    background: var(--accent-gradient);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.8rem;
-    font-weight: 800;
-    color: #fff;
-    flex-shrink: 0;
+    display: none;
 }
 
 .student-name {
@@ -338,9 +321,10 @@
     background: rgba(124,58,237,0.15);
     color: var(--accent-purple);
     border-radius: 20px;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-weight: 700;
     border: 1px solid rgba(124,58,237,0.25);
+    margin-left: 8px;
 }
 
 .student-email {
