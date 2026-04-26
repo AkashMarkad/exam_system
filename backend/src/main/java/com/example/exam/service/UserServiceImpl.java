@@ -108,4 +108,16 @@ public class UserServiceImpl implements UserService {
         logger.info("Deleting user: {}", email);
         userRepository.delete(user);
     }
+
+    @Override
+    public java.util.List<User> getAllUsers() {
+        return (java.util.List<User>) userRepository.findAll();
+    }
+
+    @Override
+    public User updateUserRole(String email, Role newRole) {
+        User user = getUserByEmail(email);
+        user.setRole(newRole);
+        return userRepository.save(user);
+    }
 }

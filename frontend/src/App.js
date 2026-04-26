@@ -10,6 +10,7 @@ import ExamExecution from './pages/ExamExecution';
 import Results from './pages/Results';
 import AdminResults from './pages/AdminResults';
 import Leaderboard from './pages/Leaderboard';
+import ManageUsers from './pages/ManageUsers';
 import './styles/App.css';
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/admin/manage-exams" element={<ManageExams />} />
+        <Route path="/admin/manage-users" element={<ManageUsers />} />
         <Route path="/exams" element={<TakeExam />} />
         <Route path="/exam/:id/take" element={<ExamExecution />} />
         <Route path="/results" element={<Results />} />

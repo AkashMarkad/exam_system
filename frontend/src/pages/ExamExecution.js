@@ -309,17 +309,40 @@ function ExamExecution() {
     // ===== RESULT =====
     if (result || stage === 'result') {
         return (
-            <div className="exam-exec-container flex-center">
-                <div className="result-card masked-result">
-                    <div className="success-icon">✔️</div>
-                    <h2>Exam Submitted Successfully</h2>
-                    <p className="result-msg">
-                        Your assessment has been recorded.
-                        <strong> Please open the Result Section</strong> to view your detailed performance and marks.
-                    </p>
-                    <button className="btn-exit-dashboard btn btn-primary btn-lg" onClick={() => navigate('/exams')}>
-                        Exit to Dashboard
-                    </button>
+            <div className="exam-exec-page">
+                <header className="exam-topbar">
+                    <div className="exam-topbar-left">
+                        <div className="navbar-brand">
+                            <span className="brand-icon">📝</span>
+                            <div className="exam-title-meta">
+                                <h2>{exam ? exam.name : 'Exam'}</h2>
+                                <span className="exam-tag-small">Submitted</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="exam-topbar-right">
+                        <button className="theme-toggle" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+                            {theme === 'dark' ? '☀️' : '🌙'}
+                        </button>
+                    </div>
+                </header>
+                <div className="exam-exec-container flex-center">
+                    <div className="result-card">
+                        <div className="result-icon-wrapper">
+                            <span className="success-icon">✔️</span>
+                        </div>
+                        <h2>Exam Submitted Successfully</h2>
+                        <div className="result-divider"></div>
+                        <p className="result-msg">
+                            Your assessment has been recorded.
+                            <br /><br />
+                            <strong>📊 Please open the Result Section</strong> to view your detailed performance and marks.
+                        </p>
+                        <button className="btn-exit-dashboard" onClick={() => navigate('/exams')}>
+                            <span>Exit to Dashboard</span>
+                            <span>→</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         );

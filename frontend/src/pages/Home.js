@@ -90,6 +90,7 @@ function Home() {
                 description: 'Manage user accounts, roles, and permissions.',
                 tag: 'Admin',
                 tagClass: '',
+                link: '/admin/manage-users'
             }
         );
     }

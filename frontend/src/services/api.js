@@ -313,3 +313,52 @@ export async function getLeaderboardByExam(examId) {
 
     return data;
 }
+
+export async function getAllUsers() {
+    const response = await fetch(`${API_BASE}/admin/users`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch users');
+    }
+
+    return data;
+}
+
+export async function updateUserRole(email, role) {
+    const response = await fetch(`${API_BASE}/admin/users/${email}/role`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ role }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || 'Failed to update user role');
+    }
+
+    return data;
+}
+
+export async function deleteUserAdmin(email) {
+    const response = await fetch(`${API_BASE}/admin/users/${email}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || 'Failed to delete user');
+    }
+
+    return data;
+}
