@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getExams, getMyResults } from '../services/api';
 import Navbar from '../components/Navbar';
+import usePageTitle from '../hooks/usePageTitle';
 import '../styles/TakeExam.css';
 
 function TakeExam() {
     const navigate = useNavigate();
+    usePageTitle('Exams');
     const [exams, setExams] = useState([]);
     const [userAttempts, setUserAttempts] = useState([]);
     const [loading, setLoading] = useState(true);

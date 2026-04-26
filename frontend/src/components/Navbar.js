@@ -28,7 +28,7 @@ function Navbar() {
 
     const handleLogout = () => {
         clearUser();
-        navigate('/login');
+        navigate('/');
     };
 
     const toggleTheme = () => {

@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { createExamWithQuestions, getExams, updateExam, deleteExam } from '../services/api';
 import Navbar from '../components/Navbar';
+import usePageTitle from '../hooks/usePageTitle';
 import Toast from '../components/Toast';
 import ConfirmModal from '../components/ConfirmModal';
 import '../styles/ManageExams.css';
 
 function ManageExams() {
+    usePageTitle('Manage Exams');
     const [exams, setExams] = useState([]);
     const fileInputRef = useRef(null);
     

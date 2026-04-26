@@ -1,16 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getUser } from '../services/api';
+import usePageTitle from '../hooks/usePageTitle';
 import logo from '../assets/images/logo.png';
 import '../styles/Landing.css';
 
 function Landing() {
     const navigate = useNavigate();
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+    usePageTitle(null); // → ExamSystem — Smart Assessment Platform
 
     useEffect(() => {
+        const user = getUser();
+        if (user) {
+            navigate('/home');
+            return;
+        }
         document.documentElement.setAttribute('data-theme', theme);
         localStorage.setItem('theme', theme);
-    }, [theme]);
+    }, [theme, navigate]);
 
     const features = [
         { icon: '📝', title: 'Smart Assessments', description: 'Create and take timed exams with auto-submission when the timer hits zero.' },

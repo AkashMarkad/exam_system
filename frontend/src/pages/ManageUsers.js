@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getAllUsers, updateUserRole, deleteUserAdmin } from '../services/api';
 import Navbar from '../components/Navbar';
+import usePageTitle from '../hooks/usePageTitle';
 import Toast from '../components/Toast';
 import ConfirmModal from '../components/ConfirmModal';
 import '../styles/ManageUsers.css';
 
 function ManageUsers() {
+    usePageTitle('Manage Users');
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');

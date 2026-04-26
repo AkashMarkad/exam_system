@@ -266,21 +266,6 @@ export async function getMyResults() {
     return data;
 }
 
-export async function getAllResults() {
-    const response = await fetch(`${API_BASE}/attempts/all-results`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-        throw new Error(data.message || 'Failed to fetch all results');
-    }
-
-    return data;
-}
 
 export async function getLeaderboard() {
     const response = await fetch(`${API_BASE}/leaderboard`, {

@@ -9,28 +9,35 @@ import ManageExams from './pages/ManageExams';
 import TakeExam from './pages/TakeExam';
 import ExamExecution from './pages/ExamExecution';
 import Results from './pages/Results';
-import AdminResults from './pages/AdminResults';
 import Leaderboard from './pages/Leaderboard';
 import ManageUsers from './pages/ManageUsers';
+import ProtectedRoute from './components/ProtectedRoute';
 import './styles/App.css';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Public Routes */}
         <Route path="/" element={<Landing />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/admin/manage-exams" element={<ManageExams />} />
-        <Route path="/admin/manage-users" element={<ManageUsers />} />
-        <Route path="/exams" element={<TakeExam />} />
-        <Route path="/exam/:id/take" element={<ExamExecution />} />
-        <Route path="/results" element={<Results />} />
-        <Route path="/admin/results" element={<AdminResults />} />
-        <Route path="/leaderboard" element={<Leaderboard />} />
+
+        {/* Protected User Routes */}
+        <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/exams" element={<ProtectedRoute><TakeExam /></ProtectedRoute>} />
+        <Route path="/exam/:id/take" element={<ProtectedRoute><ExamExecution /></ProtectedRoute>} />
+        <Route path="/results" element={<ProtectedRoute><Results /></ProtectedRoute>} />
+        <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
+
+        {/* Protected Admin Routes */}
+        <Route path="/admin/manage-exams" element={<ProtectedRoute adminOnly={true}><ManageExams /></ProtectedRoute>} />
+        <Route path="/admin/manage-users" element={<ProtectedRoute adminOnly={true}><ManageUsers /></ProtectedRoute>} />
+
+        {/* Catch-all Redirect */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );

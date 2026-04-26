@@ -1,15 +1,26 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { startExam, submitExam } from '../services/api';
+import usePageTitle from '../hooks/usePageTitle';
 import '../styles/ExamExecution.css';
 
 function ExamExecution() {
     const { id } = useParams();
     const navigate = useNavigate();
-
-    const [attemptId, setAttemptId] = useState(null);
+    
+    // stage: loading, instructions, exam, result
+    const [stage, setStage] = useState('loading'); 
     const [exam, setExam] = useState(null);
-    const [stage, setStage] = useState('loading'); // loading, instructions, exam, result
+    const [attemptId, setAttemptId] = useState(null);
+
+    // Dynamic Title
+    const getPageTitle = () => {
+        if (stage === 'loading') return 'Loading Exam...';
+        if (stage === 'result') return 'Exam Submitted';
+        if (exam) return exam.name;
+        return 'Exam';
+    };
+    usePageTitle(getPageTitle());
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [answers, setAnswers] = useState({});
     const [timeLeft, setTimeLeft] = useState(0);

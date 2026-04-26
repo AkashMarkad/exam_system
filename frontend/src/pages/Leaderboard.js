@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { getLeaderboard, getLeaderboardByExam, getExams, getUser } from '../services/api';
 import Navbar from '../components/Navbar';
+import usePageTitle from '../hooks/usePageTitle';
 import '../styles/Leaderboard.css';
 
 function Leaderboard() {
+    usePageTitle('Leaderboard');
     const [entries, setEntries] = useState([]);
     const [exams, setExams] = useState([]);
     const [selectedExamId, setSelectedExamId] = useState('all');

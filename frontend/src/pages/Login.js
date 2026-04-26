@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { loginUser, saveUser } from '../services/api';
+import usePageTitle from '../hooks/usePageTitle';
 import logo from '../assets/images/logo.png';
 import '../styles/Auth.css';
 
 function Login() {
     const navigate = useNavigate();
     const location = useLocation();
+    usePageTitle('Sign In');
     const [form, setForm] = useState({ email: '', password: '' });
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);

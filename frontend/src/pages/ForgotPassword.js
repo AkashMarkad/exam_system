@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { forgotPassword, verifyOtp, resetPassword } from '../services/api';
+import usePageTitle from '../hooks/usePageTitle';
 import logo from '../assets/images/logo.png';
 import '../styles/Auth.css';
 
 function ForgotPassword() {
     const navigate = useNavigate();
+    usePageTitle('Forgot Password');
     const [step, setStep] = useState(1); // 1: email, 2: OTP, 3: new password
     const [email, setEmail] = useState('');
     const [otp, setOtp] = useState('');

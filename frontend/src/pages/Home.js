@@ -2,19 +2,21 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getUser, getMyResults } from '../services/api';
 import Navbar from '../components/Navbar';
+import usePageTitle from '../hooks/usePageTitle';
 import '../styles/Home.css';
 
 function Home() {
     const navigate = useNavigate();
     const user = getUser();
     const userEmail = user?.email;
+    usePageTitle('Home');
 
     const [stats, setStats] = useState({ examsTaken: 0, passed: 0, avgScore: null });
     const [statsLoading, setStatsLoading] = useState(true);
 
     useEffect(() => {
         if (!userEmail) {
-            navigate('/login');
+            navigate('/');
         }
     }, [userEmail, navigate]);
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getProfile, updateProfile, deleteProfile, getUser, saveUser, clearUser } from '../services/api';
 import Navbar from '../components/Navbar';
+import usePageTitle from '../hooks/usePageTitle';
 import ConfirmModal from '../components/ConfirmModal';
 import logo from '../assets/images/logo.png';
 import '../styles/Auth.css'; // Reuse auth styles for the form
@@ -9,6 +10,7 @@ import '../styles/Auth.css'; // Reuse auth styles for the form
 function Profile() {
     const navigate = useNavigate();
     const currentUser = getUser();
+    usePageTitle('Profile');
     
     const [form, setForm] = useState({ name: '', email: '', newPassword: '' });
     const [loading, setLoading] = useState(true);
@@ -23,7 +25,7 @@ function Profile() {
     
     useEffect(() => {
         if (!userEmail) {
-            navigate('/login');
+            navigate('/');
             return;
         }
 
@@ -39,7 +41,7 @@ function Profile() {
                 if (err.message && !err.message.includes('JSON')) {
                     setMessage({ text: 'Failed to load profile. Please sign in again.', type: 'error' });
                     clearUser();
-                    setTimeout(() => navigate('/login'), 2000);
+                    setTimeout(() => navigate('/'), 2000);
                 }
             } finally {
                 setLoading(false);
@@ -111,7 +113,7 @@ function Profile() {
         try {
             await deleteProfile();
             clearUser();
-            navigate('/login');
+            navigate('/');
         } catch (err) {
             setMessage({ text: err.message || 'Failed to delete account', type: 'error' });
             setDeleting(false);

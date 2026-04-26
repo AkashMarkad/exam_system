@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { registerUser } from '../services/api';
+import usePageTitle from '../hooks/usePageTitle';
 import logo from '../assets/images/logo.png';
 import '../styles/Auth.css';
 
 function Register() {
     const navigate = useNavigate();
+    usePageTitle('Register');
     const [form, setForm] = useState({ name: '', email: '', password: '' });
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);

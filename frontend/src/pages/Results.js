@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { getMyResults, getExams } from '../services/api';
 import Navbar from '../components/Navbar';
+import usePageTitle from '../hooks/usePageTitle';
 import '../styles/Results.css';
 
 function Results() {
+    usePageTitle('My Results');
     const [results, setResults] = useState([]);
     const [allExams, setAllExams] = useState([]);
     const [loading, setLoading] = useState(true);
